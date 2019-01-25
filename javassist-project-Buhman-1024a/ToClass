@@ -1,0 +1,59 @@
+package ex04.toclass;
+
+import java.util.Scanner;
+
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+
+public class ToClass {
+   public static void main(String[] args) {
+      try {
+         // Hello orig = new Hello(); // java.lang.LinkageError
+    	  
+    	 String[] classLines = new String[2];
+    	 Scanner input = new Scanner(System.in);
+    	 String classLine;
+    	 while(classLines.length != 1)
+    	 {
+    		System.out.println("Please give a class:");
+    	 	classLine = input.nextLine();
+    	 	classLines = classLine.split(" ");
+    	 	/*for(int i = 0; i < classLines.length; i++)
+    	 	{
+    	 		System.out.println(classLines[i]);
+    	 	}*/
+    	 	if(classLines.length != 1)
+    	 	{
+    	 		System.out.println("[WRN] Invalid Input");
+    	 	}
+    	 }
+    	 String className = classLines[0];
+    	 
+    	 
+         ClassPool cp = ClassPool.getDefault();
+         CtClass cc = cp.get("target." + className);
+         cc.defrost();
+         //Here is where I would get the declared fields.
+         //However, calling getDeclaredFields() causes an exception at runtime.
+         //CtField[] theFields = cc.getDeclaredFields();
+
+         CtConstructor declaredConstructor = cc.getDeclaredConstructor(new CtClass[0]);
+         
+         //Here is where I would add printing out the fields if
+         //I could figure out how to get the fields in a class.
+         declaredConstructor.insertAfter("{ " //
+               + "System.out.println(\"[TR] After calling a constructor: \" + i); }");
+
+         Class<?> c = cc.toClass();
+         c.newInstance();
+      } catch (NotFoundException | CannotCompileException | //
+            InstantiationException | IllegalAccessException e) {
+         System.out.println(e.toString());
+      }
+   }
+}
