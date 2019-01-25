@@ -13,7 +13,6 @@ import javassist.NotFoundException;
 public class ToClass {
    public static void main(String[] args) {
       try {
-         // Hello orig = new Hello(); // java.lang.LinkageError
     	  
     	 String[] classLines = new String[2];
     	 Scanner input = new Scanner(System.in);
@@ -23,10 +22,6 @@ public class ToClass {
     		System.out.println("Please give a class:");
     	 	classLine = input.nextLine();
     	 	classLines = classLine.split(" ");
-    	 	/*for(int i = 0; i < classLines.length; i++)
-    	 	{
-    	 		System.out.println(classLines[i]);
-    	 	}*/
     	 	if(classLines.length != 1)
     	 	{
     	 		System.out.println("[WRN] Invalid Input");
