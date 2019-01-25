@@ -1,5 +1,6 @@
 package ex04.toclassB;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 import javassist.CannotCompileException;
@@ -19,43 +20,32 @@ public class ToClass {
      	 boolean flag1 = false;
      	 boolean flag2 = false;
      	 boolean superclassFlag = false;
+     	 String[] pastSelections = new String[10];
+     	 int selectionIndex = 0;
+     	 target.Rectangle h = null;
+     	 Class<?> c = null;
      	 while(option != 3)
      	 {
-     		System.out.println("Enter 1 to modify add.  Enter 2 to modify remove. Enter 3 to quit.");
+     		System.out.println("Enter 1 to modify a method. Enter 3 to quit.");
      	 	option = input.nextInt();
      	 	if(option == 3)
      	 	{
      	 		break;
-     	 	}
-     	 	else if(option == 1)
-     	 	{
-     	 		methodToModify = "add";
-     	 		if(flag1 == true)
-     	 		{
-     	 			System.out.println("[WRN] This method 'add' has been modified!!");
-     	 			continue;
-     	 		}
-     	 		flag1 = true;
-     	 	}
-     	 	else if(option == 2)
-     	 	{
-     	 		methodToModify = "remove";
-     	 		if(flag1 == true)
-     	 		{
-     	 			System.out.println("[WRN] This method 'remove' has been modified!!");
-     	 			continue;
-     	 		}
-     	 		flag2 = true;
-     	 	}
-     	 	else
-     	 	{
-     	 		continue;
      	 	}
      	 	
      	 	System.out.println("Please enter a usage method, an increment method, and a getter method:");
     	 	String usage = input.next();
     	 	String increment = input.next();
     	 	String getter = input.next();
+
+    	 	if(Arrays.asList(pastSelections).contains(usage))
+    	 	{
+    	 		System.out.println("[WRN] This method '" + usage + "' has been modified!!");
+    	 		continue;
+    	 	}
+    	 	
+    	 	pastSelections[selectionIndex] = usage;
+    	 	selectionIndex++;
     	 	//scanner 2 options to modify 1 class
     	 	//if user selects first option, modify rectangle
     	 	//show menu again
@@ -72,24 +62,37 @@ public class ToClass {
             	rectangle.setSuperclass(point);
             	superclassFlag = true;
             }
-         	CtMethod m = rectangle.getDeclaredMethod(methodToModify);
-         	CtConstructor declaredConstructor = rectangle.getDeclaredConstructor(new CtClass[0]);
-         
-         	m.insertAfter("{ " //
-        		 + increment + "();\nSystem.out.println(\"value: \" + " + getter + "();");
-
-         	Class<?> c = rectangle.toClass();
-            target.Rectangle h = (target.Rectangle) c.newInstance();
-            if(option == 1)
+            rectangle.defrost();
+         	CtMethod m = rectangle.getDeclaredMethod(usage);
+         	//CtConstructor declaredConstructor = rectangle.getDeclaredConstructor(new CtClass[0]);
+         	rectangle.defrost();
+         	String theString = String.format("{ %s();\nSystem.out.println(\"value: \" + %s());", increment, getter);
+         	//System.out.println(theString);
+         	String stmt = "{ " //
+           		 + increment + "();\nSystem.out.println(\"value: \" + " + getter + "());}";
+         	//System.out.println("[DBG] STMT: " + stmt);
+         	//System.out.println(m);
+         	m.insertAfter(stmt);
+         	rectangle.defrost();
+         	if(c == null)
+         	{
+         		c = rectangle.toClass();
+         	}
+         	if(h == null)
+         	{
+         		h = (target.Rectangle) c.newInstance();
+         	}
+            if(usage.equals("add"))
             {
             	h.add();
             }
-            else
+            else if(usage.equals("remove"))
             {
             	h.remove();
             }
-         	
+         	//System.out.println("I got here.");
      	 }
+     	 
       } catch (NotFoundException | CannotCompileException | //
             InstantiationException | IllegalAccessException e) {
          System.out.println(e.toString());
